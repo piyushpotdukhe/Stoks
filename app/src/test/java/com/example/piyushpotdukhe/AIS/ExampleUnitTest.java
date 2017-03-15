@@ -1,4 +1,4 @@
-package com.example.piyushpotdukhe.searchstock;
+package com.example.piyushpotdukhe.AIS;
 
 import org.junit.Test;
 

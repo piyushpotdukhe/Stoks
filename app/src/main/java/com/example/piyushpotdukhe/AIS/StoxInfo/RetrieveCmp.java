@@ -1,8 +1,7 @@
-package com.example.piyushpotdukhe.searchstock;
+package com.example.piyushpotdukhe.AIS.StoxInfo;
 
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.TextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,7 +14,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import static com.example.piyushpotdukhe.searchstock.StockDetails.getStockDetailsObject;
+import static com.example.piyushpotdukhe.AIS.StoxInfo.StockDetails.getStockDetailsObject;
 
 class RetrieveCmp extends AsyncTask<String, Void, Integer> {
 
