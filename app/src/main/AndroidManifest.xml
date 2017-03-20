@@ -18,6 +18,11 @@
         </activity>
 
         <activity
+            android:name="com.example.piyushpotdukhe.AIS.StoxInfo.DisplayCardList"
+            android:label="card display"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
             android:name="com.example.piyushpotdukhe.AIS.LoginActivity"
             android:label="@string/login"
             android:theme="@style/AppTheme.NoActionBar">

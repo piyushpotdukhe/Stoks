@@ -85,7 +85,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private boolean isUserAlreadyLoggedIn(){
-        return (getAuthUserObject().getIsLoggedIn());
+        /*for test only*/ return true;
+        // return (getAuthUserObject().getIsLoggedIn());
     }
 
     private void loginUser(){
