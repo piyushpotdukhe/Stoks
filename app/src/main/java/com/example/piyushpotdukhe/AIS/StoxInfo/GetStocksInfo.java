@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -13,7 +15,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.piyushpotdukhe.AIS.R;
-import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -22,10 +23,18 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
-import static com.example.piyushpotdukhe.AIS.StoxInfo.StockDetails.getStockDetailsObject;
+import static com.example.piyushpotdukhe.AIS.StoxInfo.StockDetailsClass.getStockDetailsObject;
 
 public class GetStocksInfo extends AppCompatActivity {
+    String mExchange;
+    String mScript;
+    String mCmp;
+    public static Set<StockDetailsClass> stockHashSet;
+    private RecyclerView rv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,10 +42,12 @@ public class GetStocksInfo extends AppCompatActivity {
         setContentView(R.layout.activity_get_stock_info);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        stockHashSet = new HashSet<>(); //init
         String username = "serotonin pkon"; //mUser.getDisplayName().toString();
         String msg = "Welcome " + username.substring(0, username.indexOf(" ")) + ", enter scrip here.";
         ((EditText)findViewById(R.id.scriptFromUser)).setHint(msg);
+
+        rv = (RecyclerView)findViewById(R.id.recycler_view);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -46,17 +57,17 @@ public class GetStocksInfo extends AppCompatActivity {
 //                launchCardList();
             }
 
-            private void launchCardList() {
+            /*private void launchCardList() {
                 Intent launchCardList = new Intent(GetStocksInfo.this, DisplayCardList.class);
                 startActivity(launchCardList);
-            }
+            }*/
 
             private void getPrice(View view) {
                 Snackbar.make(view, "getting your data", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
 
-                String mExchange = "NSE:";
-                String mScript = ((EditText)findViewById(R.id.scriptFromUser)).getText().toString().toUpperCase();
+                mExchange = "NSE:";
+                mScript = ((EditText)findViewById(R.id.scriptFromUser)).getText().toString().toUpperCase();
 //                String gFinUrl = "http://finance.google.com/finance/info?client=ig&q=NSE:RELIANCE";
                 String gFinUrl = "http://finance.google.com/finance/info?client=ig&q=" + mExchange + mScript;
                 getStockDetailsObject().setScript(mScript);
@@ -66,6 +77,15 @@ public class GetStocksInfo extends AppCompatActivity {
     }
 
 
+    public void onClickShowListButton(View v) {
+        RVAdapter adapter = new RVAdapter(stockHashSet);
+
+        rv = (RecyclerView)findViewById(R.id.recycler_view);
+        rv.setAdapter(adapter);
+
+        LinearLayoutManager llm = new LinearLayoutManager(v.getContext());
+        rv.setLayoutManager(llm);
+    }
 
 // async task to get the CMP from gfinance.
     class RetrieveCmp extends AsyncTask<String, Void, String/*Integer*/> {
@@ -98,7 +118,6 @@ public class GetStocksInfo extends AppCompatActivity {
         }
 
         public String getJSONFromUrl(String url_in) {
-
             String cmp = "0.0";
             try {
                 URL url = new URL(url_in);
@@ -110,7 +129,7 @@ public class GetStocksInfo extends AppCompatActivity {
                     urlConnection.disconnect();
                 }
             } catch ( java.io.FileNotFoundException e ){
-
+                e.printStackTrace();
             } catch ( java.net.MalformedURLException e ){
                 e.printStackTrace();
             } catch (IOException e) {
@@ -120,14 +139,14 @@ public class GetStocksInfo extends AppCompatActivity {
         }
 
         protected String doInBackground(String... stringStockQuery) {
-            String cmp = "0.0";
+            mCmp = "0.0";
             try {
-                cmp = getJSONFromUrl(stringStockQuery[0]);
+                mCmp = getJSONFromUrl(stringStockQuery[0]);
             } catch (Exception e) {
                 Log.d("GetStocksInfo", "doInBackground, Exception = " + e.toString());
-                return "0.0";
+                mCmp = "0.0";
             }
-            return cmp;
+            return mCmp;
         }
 
         protected void onPostExecute(String cmp) {
@@ -135,11 +154,23 @@ public class GetStocksInfo extends AppCompatActivity {
         }
 
         private void updateDataToUI(final String CMP) {
-                String currency = "Rs.";
-                String textToDisplay = "NSE:" + currency + CMP;
-                ((TextView)findViewById(R.id.displayTV))
-                        .setText(textToDisplay);
+            String currency = "Rs.";
+            String textToDisplay = "NSE:" + currency + CMP;
+            ((TextView)findViewById(R.id.displayTV))
+                    .setText(textToDisplay);
+            fillListToCreateCards(mScript, mExchange, CMP);
+        }
+
+        private void fillListToCreateCards(String script, String exchange, String cmp){
+//            stockHashSet = new HashSet<>();
+            stockHashSet.add(new StockDetailsClass(script, cmp, exchange));
+
+            Iterator<StockDetailsClass> itr = stockHashSet.iterator();
+            while(itr.hasNext()) {
+                StockDetailsClass temp = itr.next();
+                System.out.println(temp);
             }
+        }
     }
 
 }
