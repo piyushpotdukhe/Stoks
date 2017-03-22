@@ -1,6 +1,5 @@
 package com.example.piyushpotdukhe.AIS.StoxInfo;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -13,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.piyushpotdukhe.AIS.R;
 
@@ -23,17 +23,23 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.Observable;
+import java.util.Observer;
 
-import static com.example.piyushpotdukhe.AIS.StoxInfo.StockDetailsClass.getStockDetailsObject;
+import static com.example.piyushpotdukhe.AIS.StoxInfo.UserStockList.stockHashSet;
 
-public class GetStocksInfo extends AppCompatActivity {
+public class GetStocksInfo extends AppCompatActivity implements Observer{
+
+    @Override
+    public void update(Observable o, Object arg) {
+        Toast.makeText(this
+                , "notified dude ...!!!" /*+ myBase.getObserver().getValue()*/
+                , Toast.LENGTH_SHORT).show();
+    }
+
     String mExchange;
     String mScript;
     String mCmp;
-    public static Set<StockDetailsClass> stockHashSet;
     private RecyclerView rv;
 
     @Override
@@ -42,7 +48,6 @@ public class GetStocksInfo extends AppCompatActivity {
         setContentView(R.layout.activity_get_stock_info);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        stockHashSet = new HashSet<>(); //init
         String username = "serotonin pkon"; //mUser.getDisplayName().toString();
         String msg = "Welcome " + username.substring(0, username.indexOf(" ")) + ", enter scrip here.";
         ((EditText)findViewById(R.id.scriptFromUser)).setHint(msg);
@@ -54,13 +59,7 @@ public class GetStocksInfo extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 getPrice(view);
-//                launchCardList();
             }
-
-            /*private void launchCardList() {
-                Intent launchCardList = new Intent(GetStocksInfo.this, DisplayCardList.class);
-                startActivity(launchCardList);
-            }*/
 
             private void getPrice(View view) {
                 Snackbar.make(view, "getting your data", Snackbar.LENGTH_LONG)
@@ -70,7 +69,6 @@ public class GetStocksInfo extends AppCompatActivity {
                 mScript = ((EditText)findViewById(R.id.scriptFromUser)).getText().toString().toUpperCase();
 //                String gFinUrl = "http://finance.google.com/finance/info?client=ig&q=NSE:RELIANCE";
                 String gFinUrl = "http://finance.google.com/finance/info?client=ig&q=" + mExchange + mScript;
-                getStockDetailsObject().setScript(mScript);
                 new RetrieveCmp().execute(gFinUrl);
             }
         });
@@ -79,7 +77,9 @@ public class GetStocksInfo extends AppCompatActivity {
 
     public void onClickShowListButton(View v) {
         RVAdapter adapter = new RVAdapter(stockHashSet);
-
+//        Toast.makeText(getApplicationContext(), "test toast", Toast.LENGTH_SHORT).show();
+        Log.d("serotonin", "onClickShowListButton");
+//        RVAdapter adapter = null;
         rv = (RecyclerView)findViewById(R.id.recycler_view);
         rv.setAdapter(adapter);
 
@@ -87,12 +87,8 @@ public class GetStocksInfo extends AppCompatActivity {
         rv.setLayoutManager(llm);
     }
 
-// async task to get the CMP from gfinance.
+    // async task to get the CMP from gfinance.
     class RetrieveCmp extends AsyncTask<String, Void, String/*Integer*/> {
-
-        private void fillCmp(String cmp) {
-            getStockDetailsObject().setCmp(cmp);
-        }
 
         private String readStream(InputStream stream) {
             String cmp = "0.0";
@@ -107,7 +103,6 @@ public class GetStocksInfo extends AppCompatActivity {
                     if (line.startsWith(cmpLine)) { //parse line with current price
                         cmp = line.substring(cmpLine.length()/*line.indexOf(cmlLine) + 3*/ , line.length()-1);
                         Log.e("SEROTONIN", "CMP=" + cmp);
-                        fillCmp(cmp);
                     }
                 }
                 stream.close();
@@ -159,17 +154,19 @@ public class GetStocksInfo extends AppCompatActivity {
             ((TextView)findViewById(R.id.displayTV))
                     .setText(textToDisplay);
             fillListToCreateCards(mScript, mExchange, CMP);
+
         }
 
         private void fillListToCreateCards(String script, String exchange, String cmp){
-//            stockHashSet = new HashSet<>();
-            stockHashSet.add(new StockDetailsClass(script, cmp, exchange));
+            //stockHashSet.add(new StockDetailsClass(script, cmp, exchange));
+            UserStockList.getUserStockListObj().addToUserStockList(script, exchange, cmp);
 
-            Iterator<StockDetailsClass> itr = stockHashSet.iterator();
+            //just debug prints:
+            /*Iterator<StockDetailsClass> itr = stockHashSet.iterator();
             while(itr.hasNext()) {
                 StockDetailsClass temp = itr.next();
                 System.out.println(temp);
-            }
+            }*/
         }
     }
 

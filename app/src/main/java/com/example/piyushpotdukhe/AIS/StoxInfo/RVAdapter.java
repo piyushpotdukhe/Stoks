@@ -16,8 +16,8 @@ import java.util.Set;
 public class RVAdapter extends RecyclerView.Adapter<RVAdapter.StockViewHolder> {
 
     // RVAdapter constructor
-    Set<StockDetailsClass> stockHashSet;
-    RVAdapter(Set<StockDetailsClass> stockHashSet){
+    Set<UserStockList.StockDetailsClass> stockHashSet;
+    RVAdapter(Set<UserStockList.StockDetailsClass> stockHashSet){
         this.stockHashSet = stockHashSet;
     }
 
@@ -49,9 +49,9 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.StockViewHolder> {
             return;
         }
 
-        StockDetailsClass sdc = null;
-        Iterator<StockDetailsClass> itr = stockHashSet.iterator();
-        while(position>=0){
+        UserStockList.StockDetailsClass sdc = null;
+        Iterator<UserStockList.StockDetailsClass> itr = stockHashSet.iterator();
+        while(position >= 0) {
             sdc = itr.next();
             position--;
         }
