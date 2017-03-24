@@ -11,13 +11,13 @@ import android.widget.TextView;
 import com.example.piyushpotdukhe.AIS.R;
 
 import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
 
 public class RVAdapter extends RecyclerView.Adapter<RVAdapter.StockViewHolder> {
 
     // RVAdapter constructor
-    Set<UserStockList.StockDetailsClass> stockHashSet;
-    RVAdapter(Set<UserStockList.StockDetailsClass> stockHashSet){
+    static List<UserStockList.StockDetailsClass> stockHashSet;
+    RVAdapter(List<UserStockList.StockDetailsClass> stockHashSet){
         this.stockHashSet = stockHashSet;
     }
 
@@ -55,10 +55,8 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.StockViewHolder> {
             sdc = itr.next();
             position--;
         }
-//        tv_stockName.setText("Script name = " + sdc.getScript());
         tv_stockName.setText(sdc.getScript());
         tv_stockCmp.setText(sdc.getCmp());
-//        tv_stockCmp.setText("Current market price = " + sdc.getCmp());
     }
 
     @Override

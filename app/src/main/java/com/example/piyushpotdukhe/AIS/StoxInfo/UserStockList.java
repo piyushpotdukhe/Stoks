@@ -1,12 +1,13 @@
 package com.example.piyushpotdukhe.AIS.StoxInfo;
 
-import java.util.HashSet;
-import java.util.Observable;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
-public class UserStockList extends Observable {
+public class UserStockList /*extends Observable*/ {
 
-    public static Set<StockDetailsClass> stockHashSet;
+    public static List<StockDetailsClass> stockHashSet;
 
     private static UserStockList mUserStockList = null;
     private UserStockList() {
@@ -16,23 +17,40 @@ public class UserStockList extends Observable {
     public static UserStockList getUserStockListObj() {
         if (mUserStockList == null) {
             mUserStockList = new UserStockList();
-            stockHashSet = new HashSet<>(); //init
+            stockHashSet = new ArrayList<>(); //init
+//            stockHashSet = new HashSet<>(); //init
         }
         return mUserStockList;
     }
 
-    public void addToUserStockList(String script, String exchange, String cmp) {
-        stockHashSet.add(new StockDetailsClass(script, cmp, exchange));
-        notifyObservers();
-    }
-
-    public Set getObserver() {
+    public List<StockDetailsClass> getStockHashSet() {
         return stockHashSet;
     }
 
+    public void addToUserStockList(String script, String exchange, String cmp) {
+        StockDetailsClass userSearchedForThisStock = new StockDetailsClass(script, cmp, exchange);
+        //junk coding: why add-remove, why not > just update the cmp in the same object ??
+        if(stockHashSet.contains(userSearchedForThisStock)) {
+            stockHashSet.remove(userSearchedForThisStock);
+        }
+        stockHashSet.add(userSearchedForThisStock);
+        Collections.sort(stockHashSet, getCompByScriptName());
+    }
 
 
     // ----------------------- StockDetailsClass ---------------------------------//
+
+    public Comparator<StockDetailsClass> getCompByScriptName() {
+        Comparator comp = new Comparator<StockDetailsClass>(){
+            @Override
+            public int compare(StockDetailsClass o1, StockDetailsClass o2)
+            {
+                return ( (((StockDetailsClass)o1).getScript())
+                        .compareTo(((StockDetailsClass)o2).getScript()) );
+            }
+        };
+        return comp;
+    }
 
     public class StockDetailsClass {
 
@@ -56,13 +74,11 @@ public class UserStockList extends Observable {
             int hashcode = 0;
             hashcode += this.getScript().hashCode();
             return hashcode;
-//            return -1;
         }
 
         public boolean equals(Object o) {
 //            System.out.println("In equals");
-            return(this.getScript())
-                    .equals(((StockDetailsClass)o).getScript());
+            return ( (this.getScript()).equals(((StockDetailsClass)o).getScript()) );
         }
 
         public String getScript() {
